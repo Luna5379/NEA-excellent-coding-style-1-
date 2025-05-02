@@ -1,3 +1,4 @@
+import re
 import pygame
 
 from assets.constants import *
@@ -50,10 +51,6 @@ def signup1(table, textBoxes,surface, cursor):
     return 'signup1', table, userBox.text,[userBox, passBox, cpasBox]
     
 def signup2(table, textBoxes, popUp, username, surface, cursor):
-    print(popUp)
-    if popUp is not None:
-        print(popUp.popped)
-    print("you are in signup2")
     if textBoxes == []:
         textBoxes = [None, None, None,None,None, None]
     surface.fill(color=bgColour)
@@ -65,37 +62,45 @@ def signup2(table, textBoxes, popUp, username, surface, cursor):
     phonBox = fullTextBox([(38,32,54), (189,174,232), (62,453), surface, pygame.font.Font(textFont, 22), (61,55,79), width, (298,47)], textBoxes[4], placeholder='Phone')
     student = createButton([(119,73,248), (38,32,54), (52.5,527), 'JOIN A CLASSROOM', surface, pygame.font.Font(buttonFont, 18), (85,24,214), width, (318,42)])
     teacher = createButton([(119,73,248), (38,32,54), (52.5,587), 'ARE YOU A TEACHER', surface, pygame.font.Font(buttonFont, 18), (85,24,214), width, (318,42)])
-    print("you are in signup22")
     if nameBox.text and mailBox.text and gendBox.text and dateBox.text and phonBox.text:
-        if phonBox.text.isnumeric() == False:
-            createText([surface, pygame.font.Font(textFont, 22), 'Phone number must be a number', (255,0,0), (45,637)])
+        if not re.fullmatch(r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,7}\b', mailBox.text):
+            createText([surface, pygame.font.Font(textFont, 22), 'Email must be valid', (255,0,0), (45,637)])
         else:
-            dataParams = [str(nameBox.text), str(mailBox.text), str(gendBox.text), str(dateBox.text), int(phonBox.text) if phonBox.text != '' else None]
-            if not teacher:
-                code = generateCode(cursor)
-                teacherPopUpData = [bgColour, surface, pygame.font.Font(textFont,24), (189,174,232), width, (343.875, 216.25), (28,32,54), pygame.font.Font(buttonFont, 96), (119,73,248), (38,32,54), (52.5,445), 'CONTINUE', surface, pygame.font.Font(buttonFont, 18), (85,24,214), width, (318,42)]
-                nextFunct, codeBox, popUp = createProfilePopUp(True,teacherPopUpData, dataParams, username,surface, cursor,code, popUp = None)
-            elif not student:
-                studentPopUpData = [bgColour, surface, pygame.font.Font(textFont, 22), (189,174,232), width, (343.875,216.25), (38,32,54), pygame.font.Font(buttonFont, 96), (119,73,248), (38,32,54), (52.5,445), 'CONTINUE', surface, pygame.font.Font(buttonFont, 18), (85,24,214), width, (318,42), (38,32,54), (189,174,232), (62.0625,393.3125), surface, pygame.font.Font(buttonFont, 80), (61,55,79), width, (298,80)]
-                nextFunct, codeBox, popUp = createProfilePopUp(False, studentPopUpData, dataParams, username,surface, cursor, box=textBoxes[5], popUp = None)
-                print(popUp)
-            elif (popUp.popped if popUp is not None else False):
-                if popUp.teacher:
-                    code = generateCode(cursor)
-                    teacherPopUpData = [bgColour, surface, pygame.font.Font(textFont,24), (189,174,232), width, (343.875, 216.25), (28,32,54), pygame.font.Font(buttonFont, 96), (119,73,248), (38,32,54), (52.5,445), 'CONTINUE', surface, pygame.font.Font(buttonFont, 18), (85,24,214), width, (318,42)]
-                    nextFunct, codeBox, popUp = createProfilePopUp(True,teacherPopUpData, dataParams, username,surface, cursor, code, popUp = popUp)
-                else:
-                    studentPopUpData = [bgColour, surface, pygame.font.Font(textFont, 22), (189,174,232), width, (343.875,216.25), (38,32,54), pygame.font.Font(buttonFont, 96), (119,73,248), (38,32,54), (52.5,445), 'CONTINUE', surface, pygame.font.Font(buttonFont, 18), (85,24,214), width, (318,42), (38,32,54), (189,174,232), (62.0625,393.3125), surface, pygame.font.Font(buttonFont, 80), (61,55,79), width, (298,80)]
-                    nextFunct, codeBox, popUp = createProfilePopUp(False, studentPopUpData, dataParams, username,surface, cursor, box=textBoxes[5], popUp = popUp)  
+            if not re.match(r'^\d{4}-\d{2}-\d{2}$', dateBox.text):
+                createText([surface, pygame.font.Font(textFont, 22), 'Date must be in YYYY-MM-DD format', (255,0,0), (45,637)])
             else:
-                nextFunct = 'signup2'
-                codeBox = None
-                print("heeeeyyyyyyyy")
-                popUp = None
-            if nextFunct == 'teacher' or nextFunct == 'timeline':
-                print("do we cause the error?")
-                hashUpdate(table) 
-            return nextFunct, table, [nameBox, mailBox, gendBox, dateBox, phonBox, codeBox], popUp
+                if phonBox.text.isnumeric() == False:
+                    createText([surface, pygame.font.Font(textFont, 22), 'Phone number must be a number', (255,0,0), (45,637)])
+                else:
+                    dataParams = [str(nameBox.text), str(mailBox.text), str(gendBox.text), str(dateBox.text), int(phonBox.text) if phonBox.text != '' else None]
+                    if not teacher:
+                        code = generateCode(cursor)
+                        teacherPopUpData = [bgColour, surface, pygame.font.Font(textFont,24), (189,174,232), width, (343.875, 256.25), (28,32,54), pygame.font.Font(buttonFont, 96), (119,73,248), (38,32,54), (52.5,445), 'CONTINUE', surface, pygame.font.Font(buttonFont, 18), (85,24,214), width, (318,42)]
+                        nextFunct, codeBox, popUp = createProfilePopUp(True,teacherPopUpData, dataParams, username,surface, cursor,code, popUp = None)
+                    elif not student:
+                        studentPopUpData = [bgColour, surface, pygame.font.Font(textFont, 22), (189,174,232), width, (343.875,256.25), (38,32,54), pygame.font.Font(buttonFont, 96), (119,73,248), (38,32,54), (52.5,445), 'CONTINUE', surface, pygame.font.Font(buttonFont, 18), (85,24,214), width, (318,42), (38,32,54), (189,174,232), (62.0625,363.3125), surface, pygame.font.Font(buttonFont, 80), (61,55,79), width, (298,80)]
+                        nextFunct, codeBox, popUp = createProfilePopUp(False, studentPopUpData, dataParams, username,surface, cursor, box=textBoxes[5], popUp = None)
+                    elif (popUp.popped if popUp is not None else False):
+                        if popUp.teacher:
+                            code = generateCode(cursor)
+                            teacherPopUpData = [bgColour, surface, pygame.font.Font(textFont,24), (189,174,232), width, (343.875, 256.25), (28,32,54), pygame.font.Font(buttonFont, 96), (119,73,248), (38,32,54), (52.5,445), 'CONTINUE', surface, pygame.font.Font(buttonFont, 18), (85,24,214), width, (318,42)]
+                            nextFunct, codeBox, popUp = createProfilePopUp(True,teacherPopUpData, dataParams, username,surface, cursor, code, popUp = popUp)
+                        else:
+                            studentPopUpData = [bgColour, surface, pygame.font.Font(textFont, 22), (189,174,232), width, (343.875,256.25), (38,32,54), pygame.font.Font(buttonFont, 96), (119,73,248), (38,32,54), (52.5,445), 'CONTINUE', surface, pygame.font.Font(buttonFont, 18), (85,24,214), width, (318,42), (38,32,54), (189,174,232), (62.0625,363.3125), surface, pygame.font.Font(buttonFont, 80), (61,55,79), width, (298,80)]
+                            nextFunct, codeBox, popUp = createProfilePopUp(False, studentPopUpData, dataParams, username,surface, cursor, box=textBoxes[5], popUp = popUp)  
+                    else:
+                        nextFunct = 'signup2'
+                        codeBox = None
+                        popUp = None
+                    if nextFunct == 'teacher' or nextFunct == 'timeline':
+                        hashUpdate(table) 
+                    if popUp is not None:
+                        nameBox.typing = False
+                        mailBox.typing = False
+                        gendBox.typing = False
+                        dateBox.typing = False
+                        phonBox.typing = False
+                    return nextFunct, table, [nameBox, mailBox, gendBox, dateBox, phonBox, codeBox], popUp
     else:
         createText([surface, pygame.font.Font(textFont, 22), 'Please fill in all fields', (255,0,0), (45,637)])
     return 'signup2', table, [nameBox, mailBox, gendBox, dateBox, phonBox, None], popUp

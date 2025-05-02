@@ -41,15 +41,24 @@ def login(table, textBoxes, surface, cursor):
     userBox = fullTextBox([(38,32,54),(189,174,232),(62,173),surface,pygame.font.Font(textFont, 22), (61,55,79), width, (298,47)], textBoxes[0], placeholder='Username')
     passBox = fullTextBox([(38,32,54), (189,174,232), (62,243), surface, pygame.font.Font(textFont, 22), (61,55,79), width, (298,47)], textBoxes[1], True, 'Password')
     entered = createButton([(119,73,248), (38,32,54), (52.5,317), 'CONTINUE', surface, pygame.font.Font(buttonFont, 18), (85,24,214), width, (318,42)])
-    if not entered:
+    if userBox.text and passBox.text:
         loggedin = checkPassword(table, tablesize, passBox.text, userBox.text, cursor)
-        if loggedin:
-            nextFunct = teacherTimeline(userBox.text, cursor)
-            textBoxes = None
+        cursor.execute("""SELECT Username FROM profile WHERE Username = ?""", [userBox.text])
+        exists = cursor.fetchone()
+        if exists != None and loggedin:
+            if not entered:
+                if loggedin:
+                    nextFunct = teacherTimeline(userBox.text, cursor)
+                    textBoxes = None
+                    return nextFunct, userBox.text, textBoxes
+                else:
+                    nextFunct = 'login'
+                    textBoxes = [userBox, passBox]
+                    return nextFunct, userBox.text, textBoxes
         else:
-            nextFunct = 'login'
-            textBoxes = [userBox, passBox]
+            createText([surface, pygame.font.Font(textFont, 22), 'Username or password incorrect', (255,0,0), (45,450)])
     else:
-        nextFunct = 'login'
-        textBoxes = [userBox, passBox]
+        createText([surface, pygame.font.Font(textFont, 22), 'Please fill in all fields', (255,0,0), (45,450)])
+    nextFunct = 'login'
+    textBoxes = [userBox, passBox]
     return nextFunct, userBox.text, textBoxes

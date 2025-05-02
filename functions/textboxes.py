@@ -1,14 +1,11 @@
 from classes.textBox import textBox
 
 def createTextBox(textBoxDetails, box, password):
-    print(box)
     if box is None:
-        print("box is None")
         box = textBox(textBoxDetails[0], textBoxDetails[1], textBoxDetails[2], textBoxDetails[3], textBoxDetails[4], textBoxDetails[5], textBoxDetails[6], textBoxDetails[7], password)
     box.drawOutline()
     box.drawBox()
     box.checkClicked()
-    print("no problems?")
     return box
 
 # def clickTextBox(box, boxBase, boxID):
@@ -29,7 +26,6 @@ def fullTextBox(textBoxDetails, box, password=False, placeholder = ''):
     box.placeholder = placeholder
     #clickTextBox(box,boxBase, boxID)
     typeTextBox(box)
-    print("no more problems?")
     return box
 
 # def runTextBox(textBoxDetails, placeholder): ### if time left over/feel like it
